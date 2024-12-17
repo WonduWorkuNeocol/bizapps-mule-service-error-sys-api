@@ -1,0 +1,21 @@
+anypoint.platform.client_id: "b8ce2700c82747e1a26bc7c4b75a6da7"
+anypoint.platform.client_secret: "0E347326B60f413DaFf2923D106f7e15"
+
+https:
+  listener:
+    host: "0.0.0.0"
+    timeout:
+      connection-idle: "600000"
+  private:
+    port:"8092"
+  port: "8082"
+  request:
+    timeout:
+      connection-idle: "400000"
+      response: "40000"
+  basepath: "/api"
+  tls:
+    path: "ssl/keystore.jks"
+    aliasname: "mule"
+    password: ""
+         

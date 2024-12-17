@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="error-impl-Flow" doc:id="74b811d1-cc6a-4de4-a5c5-8b3c82031e9f" >
+		<logger level="INFO" doc:name="Logger" doc:id="853fa558-dc41-4dfd-a549-47891320e8bc" message="Error Recieved"/>
+		<ee:transform doc:name="Transform Message" doc:id="dae3248d-1c87-4b98-8057-a6c541a6c683" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  status: "Success",
+  errorId: "ERR12345",
+  message: "Error logged and routed successfully."
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
