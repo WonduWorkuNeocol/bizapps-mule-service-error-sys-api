@@ -65,6 +65,17 @@ output application/json
 }]]]></cloudhub:custom-properties>
 		</cloudhub:create-notification>
 		<logger level="INFO" doc:name="Logger" doc:id="0df7ca4e-3968-4479-855b-371b6f76206b" />
+		<ee:transform doc:name="Transform Message" doc:id="7e83d89a-18f3-40fc-a23a-033511084a19" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	status: "success",
+	message: "alert and notification routed successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<error-handler >
 			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="343613e3-2178-4f1c-b93f-ea7d8b3546d5" >
 				<ee:transform doc:name="Transform Message" doc:id="01668eea-ec4b-4b56-a4ed-ff89b5919539" >
