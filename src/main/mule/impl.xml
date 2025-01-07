@@ -42,7 +42,7 @@ output application/json
 			<ee:variables >
 			</ee:variables>
 		</ee:transform>
-		<cloudhub:create-notification doc:name="Create Notification" doc:id="7f7cf143-7067-4fc2-b77a-49a4b5887861" priority="#[payload.priority]" transactionId="#[payload.errorId]" config-ref="CloudHub_Config" domain="bizapps-mule-service-tax-papi-dev">
+		<cloudhub:create-notification doc:name="Create Notification" doc:id="7f7cf143-7067-4fc2-b77a-49a4b5887861" priority="#[payload.priority]" transactionId="#[payload.errorId]" config-ref="CloudHub_Config" domain="#[payload.resource]">
 			<cloudhub:message ><![CDATA[#["Error " ++ (payload.errorMessage default "")]]]></cloudhub:message>
 			<cloudhub:custom-properties ><![CDATA[#[output application/java
 ---
