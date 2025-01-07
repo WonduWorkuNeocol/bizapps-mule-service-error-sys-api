@@ -1,0 +1,7 @@
+api:
+  id: ""  # Auto-discovery
+
+mule:
+  env: "uat"    
+notification:
+  enviroment: "d04e251f-834e-4d27-bc36-e924693bcede" #Test enviroment id

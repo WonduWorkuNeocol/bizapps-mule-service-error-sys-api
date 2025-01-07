@@ -1,0 +1,7 @@
+api:
+  id: ""  # Auto-discovery
+
+mule:
+  env: "prod"    
+notification:
+  enviroment: "36717cf8-c531-4412-95a0-1704ce8726a6" #Prod enviroment id

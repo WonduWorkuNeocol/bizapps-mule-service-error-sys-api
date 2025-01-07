@@ -1,22 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+<mule xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd">
+	<cloudhub:config name="CloudHub_Config" doc:name="CloudHub Config" doc:id="2ceae170-0336-4c06-9b29-dd02909e552d" >
+		<cloudhub:oauth-client-credentials-connection clientId="#[p('notification.client-id')]" clientSecret="${notification.client-secret}" environment="#[p('notification.env')]" />
+	</cloudhub:config>
 	<flow name="error-impl-Flow" doc:id="74b811d1-cc6a-4de4-a5c5-8b3c82031e9f" >
 		<logger level="INFO" doc:name="Logger" doc:id="853fa558-dc41-4dfd-a549-47891320e8bc" message="Error Recieved"/>
-		<ee:transform doc:name="Transform Message" doc:id="dae3248d-1c87-4b98-8057-a6c541a6c683" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+		<logger level="INFO" doc:name="Logger  " doc:id="a8975751-8645-4e29-90f3-381f1b2956ca" message="#[payload]"/>
+		<set-variable value="#[output json --- {&#10;	app: app.name,&#10;	directory: app.workDir,&#10;	//registry: app.registry,&#10;	flow: flow.name,&#10;	userHome: server.userHome,&#10;	userName: server.userName,&#10;	mule: mule.home,&#10;	mule1: mule.nodeId,&#10;	name: attributes.fileName,&#10;	server: server.env&#10;	}]" doc:name="Set Variable" doc:id="434f97db-e37d-469d-b421-681c601d02b2" variableName="CurrentValue"/>
+		<ee:transform doc:name="Setup Notification Paylaod" doc:id="dae3248d-1c87-4b98-8057-a6c541a6c683">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
-  status: "Success",
-  errorId: "ERR12345",
-  message: "Error logged and routed successfully."
-} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+	integrationName: payload.process default "",
+	resource: payload.resource default "",
+	fileName: payload.fileName default "",
+	lineNumber: payload.lineNumber default "",
+	
+	source: payload.sourceSystem default "",
+	target: payload.targetSystem default "",
+	
+	sourceRecordType: payload.metadata.recordType default "",
+	sourceRecordId: payload.metadata.recordId default "",
+	targetRecordType: payload.metadata.targetRecordType default "",
+	sourceRecordLink: payload.metadata.recordLink default "",
+	
+	errorId: payload.errorId default "",
+	errorType: payload.errorType default "",
+	timestamp: payload.errorTimestamp default "",
+	correlationId: payload.correlationId default "",
+	errorMessage: payload.errorMessage default ""
+
+}]]></ee:set-payload>
 			</ee:message>
+			<ee:variables >
+			</ee:variables>
 		</ee:transform>
+		<cloudhub:create-notification doc:name="Create Notification" doc:id="7f7cf143-7067-4fc2-b77a-49a4b5887861" priority="#[payload.priority]" transactionId="#[payload.errorId]" config-ref="CloudHub_Config" domain="bizapps-mule-service-tax-papi-dev">
+			<cloudhub:message ><![CDATA[#["Error " ++ (payload.errorMessage default "")]]]></cloudhub:message>
+			<cloudhub:custom-properties ><![CDATA[#[output application/java
+---
+{
+	"sourceRecordLink" : payload.sourceRecordLink,
+	"source" : payload.source,
+	"correlationId" : payload.correlationId,
+	"integrationName" : payload.integrationName,
+	"sourceRecordType" : payload.sourceRecordType,
+	"errorId" : payload.errorId,
+	"fileName" : payload.fileName,
+	"lineNumber" : payload.lineNumber,
+	"errorType" : payload.errorType,
+	"targetRecordType" : payload.targetRecordType,
+	"sourceRecordId" : payload.sourceRecordId,
+	"timestamp" : payload.timestamp,
+	"target" : payload.target,
+	"errorMessage" : payload.errorMessage,
+	"resource" : payload.resource
+}]]]></cloudhub:custom-properties>
+		</cloudhub:create-notification>
+		<logger level="INFO" doc:name="Logger" doc:id="0df7ca4e-3968-4479-855b-371b6f76206b" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="343613e3-2178-4f1c-b93f-ea7d8b3546d5" >
+				<ee:transform doc:name="Transform Message" doc:id="01668eea-ec4b-4b56-a4ed-ff89b5919539" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  errorId: error.errorType.identifier default "UNKNOWN_ERROR",
+  errorType: error.errorType.namespace default "UNKNOWN_NAMESPACE",
+  errorMessage: error.description default "No error description provided",
+  errorCause: error.cause.message default "No cause provided",
+  flowName: error.errorType.flowName default "UNKNOWN_FLOW",
+  parentFlowName: error.errorType.parentFlowName default "UNKNOWN_PARENT_FLOW",
+  lineNumber: error.errorType.lineNumber default "UNKNOWN_LINE",
+  fileName: error.errorType.fileName default "UNKNOWN_FILE",
+  timestamp: now() as String {format: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"},
+  correlationId: correlationId default "UNKNOWN_CORRELATION_ID",
+  additionalDetails: {
+    errorRootType: error.errorType.rootType default "UNKNOWN_ROOT_TYPE",
+    errorLocation: error.errorType.location default "UNKNOWN_LOCATION",
+    errorStack: error.errorStack default []
+  }
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
+		</error-handler>
 	</flow>
 </mule>
