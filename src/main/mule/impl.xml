@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd">
 	<cloudhub:config name="CloudHub_Config" doc:name="CloudHub Config" doc:id="2ceae170-0336-4c06-9b29-dd02909e552d" >
-		<cloudhub:oauth-client-credentials-connection clientId="#[p('notification.client-id')]" clientSecret="${notification.client-secret}" environment="#[p('notification.env')]" />
+		<cloudhub:oauth-client-credentials-connection clientId="#[p('notification.client-id')]" clientSecret="${secure::notification.client-secret}" environment="#[p('notification.env')]" />
 	</cloudhub:config>
 	<flow name="error-impl-Flow" doc:id="74b811d1-cc6a-4de4-a5c5-8b3c82031e9f" >
 		<logger level="INFO" doc:name="Logger" doc:id="853fa558-dc41-4dfd-a549-47891320e8bc" message="Error Recieved"/>

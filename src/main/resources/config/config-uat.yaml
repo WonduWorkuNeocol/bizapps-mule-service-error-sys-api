@@ -1,7 +1,18 @@
 api:
-  id: ""  # Auto-discovery
+  id: "20147371"  # Auto-discovery
 
 mule:
   env: "uat"    
+https:
+  port: "8082"
+  basepath: "/api"
+  readTimeout: "120000" #in Ms
+  tls:
+    path: "certs/keystore-qtctest.jks"
+    aliasname: "mulesoft_integration"
+    password: "![Lz5+uMD2dY4RDuoSkNFtjg==]" 
+    
 notification:
-  enviroment: "d04e251f-834e-4d27-bc36-e924693bcede" #Test enviroment id
+  client-id: "122453e9ada94639b732609a2b3151c5"
+  client-secret: "![A1+4aLgh0FeNrdGWJWwKvB/P/oVThXZdP1YNX2KALMuxodgpTqlJCQ==]"
+  env: "d04e251f-834e-4d27-bc36-e924693bcede" #Test enviroment id
